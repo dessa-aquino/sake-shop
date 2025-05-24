@@ -9,12 +9,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import android.util.Log
 import android.widget.Toast
-import com.example.sakeshop.data.repository.SakeStoreRepository
 import com.example.sakeshop.presentation.components.SakeStoreCard
+import com.example.sakeshop.presentation.viewmodel.SakeStoreUiState
+import com.example.sakeshop.presentation.viewmodel.SakeStoreViewModel
 import com.example.sakeshop.ui.theme.SakeShopTheme
+import org.koin.androidx.compose.koinViewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +35,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("AppInit", "Erro de inicialização: ${e.message}")
-            Toast.makeText(this, "Erro ao iniciar o aplicativo", Toast.LENGTH_LONG).show()
+            Log.e("AppInit", "Erro de inicialização", e)
+            Toast.makeText(this, "Erro ao iniciar o aplicativo: ${e.message}", Toast.LENGTH_LONG).show()
         }
 
 
@@ -41,13 +45,24 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SakeStoreList() {
-    val repository = SakeStoreRepository()
-    val stores = repository.getSakeStores()
+fun SakeStoreList(
+    viewModel: SakeStoreViewModel = koinViewModel()
+) {
+    val uiState = viewModel.uiState.collectAsState()
 
-    LazyColumn {
-        items(stores) { store ->
-            SakeStoreCard(store)
+    when (val state = uiState.value) {
+        is SakeStoreUiState.Loading -> {
+            // Adicione um componente de loading aqui
+        }
+        is SakeStoreUiState.Success -> {
+            LazyColumn {
+                items(state.stores) { store ->
+                    SakeStoreCard(store)
+                }
+            }
+        }
+        is SakeStoreUiState.Error -> {
+            // Adicione um componente de erro aqui
         }
     }
 }

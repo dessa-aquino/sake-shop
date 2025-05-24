@@ -1,5 +1,6 @@
 package com.example.sakeshop.presentation.components
 
+import coil.compose.AsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -20,10 +21,7 @@ import com.example.sakeshop.R
 import com.example.sakeshop.domain.model.SakeStore
 
 @Composable
-fun SakeStoreCard(
-    store: SakeStore,
-    onStoreClick: (SakeStore) -> Unit = {}
-) {
+fun SakeStoreCard(store: SakeStore) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,18 +33,19 @@ fun SakeStoreCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Imagem da loja
-            Image(
-                painter = painterResource(id = R.drawable.sakeshop_placeholder),
-                contentDescription = "Imagem da loja ${store.name}",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            store.picture?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = "Imagem da loja ${store.name}",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Informações da loja
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = store.name,
@@ -64,38 +63,12 @@ fun SakeStoreCard(
                     style = MaterialTheme.typography.bodySmall
                 )
 
-                // Avaliação em estrelas
+                // Rating
                 Row {
-                    repeat(5) { index ->
-                        val starColor = if (index < store.rating.toInt())
-                            Color.Yellow
-                        else
-                            Color.Gray
-
-                        Text(
-                            text = "★",
-                            color = starColor,
-                            fontSize = 20.sp
-                        )
-                    }
-                }
-            }
-
-            // Botão de link (placeholder circular)
-            Surface(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Link para site",
-                        tint = Color.White
+                    Text(
+                        text = "★ ${store.rating}",
+                        color = Color.Yellow,
+                        fontSize = 16.sp
                     )
                 }
             }
