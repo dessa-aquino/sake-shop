@@ -47,7 +47,54 @@ import androidx.compose.ui.res.painterResource
 import com.example.sakeshop.R
 import androidx.compose.foundation.clickable
 import android.content.Context
+import androidx.compose.material3.Button
 
+
+@Composable
+fun addressSection(store: SakeStore) {
+
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = store.address,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .weight(1f)
+                .clickable { openGoogleMaps(context, store.googleMapsLink) }
+        )
+    }
+}
+
+@Composable
+fun ratingSection(store: SakeStore) {
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = store.rating.toString(),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +139,23 @@ fun SakeStoreDetail(
                 )
 
             )
+        },
+        bottomBar = {
+            // Botão para abrir o website na parte inferior
+            if (store.website.isNotBlank()) {
+                Button(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(store.website))
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Abrir site")
+                }
+            }
         }
     ) { _ ->
         Box(
@@ -146,27 +210,6 @@ fun SakeStoreDetail(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Informações de endereço
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = store.address,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { openGoogleMaps(context, store.googleMapsLink) }
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         // Descrição
                         store.description?.let { description ->
                             Text(
@@ -174,6 +217,15 @@ fun SakeStoreDetail(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        addressSection(store)
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        ratingSection(store)
+
                     }
                 }
             }
