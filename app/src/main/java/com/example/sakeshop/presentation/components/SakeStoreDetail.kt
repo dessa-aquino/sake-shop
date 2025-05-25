@@ -59,6 +59,11 @@ fun SakeStoreDetail(
         }
     }
 
+    fun openWebsite(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        context.startActivity(intent)
+    }
+
 
     Column(
         modifier = modifier
@@ -93,12 +98,16 @@ fun SakeStoreDetail(
                     fontWeight = FontWeight.Bold
                 )
 
-                IconButton(onClick = onLinkClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = "Abrir link da loja",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                store.website.let { url ->
+                    IconButton(
+                        onClick = { openWebsite(url) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = "Abrir site da loja",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
