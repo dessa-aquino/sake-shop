@@ -35,7 +35,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.sakeshop.domain.model.SakeStore
-
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.TopAppBarDefaults
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,135 +79,108 @@ fun SakeStoreDetail(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                title = { Text(text = store.name) },
+                title = { },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Voltar"
-                        )
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Background circular com efeito "blur"
+                        Surface(
+                            modifier = Modifier.size(40.dp),
+                            shape = RoundedCornerShape(15.dp),
+                            color = Color.Black.copy(alpha = 0.7f)
+                        ) { }
+
+                        // Botão de voltar
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Voltar",
+                                tint = Color.White
+                            )
+                        }
                     }
-                }
+                },
+
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    navigationIconContentColor = Color.White
+                )
+
             )
         }
-    ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(paddingValues)
+    ) { _ ->
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Imagem da loja no topo
-            store.picture?.let { url ->
-                AsyncImage(
-                    model = url,
-                    contentDescription = "Imagem da loja ${store.name}",
+            // A imagem agora ocupa toda a tela, incluindo a área da TopBar
+            AsyncImage(
+                model = store.picture,
+                contentDescription = "Foto da loja ${store.name}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+            )
+
+            // O conteúdo principal agora começa do topo da tela
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Espaço para compensar a altura da TopBar e manter o conteúdo visível
+                Spacer(modifier = Modifier.height(180.dp))
+
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                // Nome da loja e ícone de link
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .weight(1f)
+                        .offset(y = (-20).dp),
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                    color = MaterialTheme.colorScheme.surface
                 ) {
-                    Text(
-                        text = store.name,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
 
-                    store.website.let { url ->
-                        IconButton(
-                            onClick = { openWebsite(url) }
+
+                        Text(
+                            text = store.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Informações de endereço
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = "Abrir site da loja",
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = store.address)
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Descrição
+                        store.description?.let { description ->
+                            Text(
+                                text = description,
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
                     }
                 }
-
-                // Avaliação
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                ) {
-                    repeat(5) { index ->
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = if (index < store.rating)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Text(
-                        text = store.rating.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-
-                // Endereço
-                Text(
-                    text = "Endereço",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-                TextButton(
-                    onClick = { openGoogleMaps(store.address) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Ícone de localização",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Text(
-                            text = store.address,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
-                }
-
-
-                // Descrição
-                Text(
-                    text = "Descrição",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-                Text(
-                    text = store.description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
             }
         }
     }
