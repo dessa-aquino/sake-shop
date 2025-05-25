@@ -52,18 +52,23 @@ fun SakeStoreCard(
         Column (
             modifier = Modifier.padding(8.dp)
         ) {
-            // Imagem da loja
-            store.picture?.let { url ->
-                AsyncImage(
-                    model = url,
-                    contentDescription = "Imagem da loja ${store.name}",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
+
+            val imageModel = when (store.picture) {
+                null -> R.drawable.placeholder_image
+                else -> store.picture
             }
+
+            AsyncImage(
+                model = imageModel,
+                contentDescription = "Imagem da loja ${store.name}",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop,
+                error = painterResource(id = R.drawable.placeholder_image),
+                fallback = painterResource(id = R.drawable.placeholder_image)
+            )
 
             Column(
                 modifier = Modifier.padding(16.dp),
