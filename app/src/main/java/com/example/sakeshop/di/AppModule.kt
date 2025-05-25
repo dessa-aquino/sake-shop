@@ -7,9 +7,8 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    // Repository
+
     single<SakeStoreRepository> { LocalSakeStoreRepository(get()) }
 
-    // ViewModel
     viewModel { SakeStoreViewModel(get()) }
 }

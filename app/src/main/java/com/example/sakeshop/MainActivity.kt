@@ -21,7 +21,6 @@ import com.example.sakeshop.presentation.viewmodel.SakeStoreUiState
 import com.example.sakeshop.presentation.viewmodel.SakeStoreViewModel
 import com.example.sakeshop.ui.theme.SakeShopTheme
 import org.koin.androidx.compose.koinViewModel
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Arrangement
@@ -30,20 +29,16 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.height
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.runtime.remember
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.Arrangement.Center
 import androidx.compose.ui.Alignment
-
-
+import com.example.sakeshop.domain.model.SakeStore
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.Scaffold
 
 
 class MainActivity : ComponentActivity() {
@@ -61,14 +56,90 @@ class MainActivity : ComponentActivity() {
                 }
             }
         } catch (e: Exception) {
-            Log.e("AppInit", "Erro de inicialização", e)
-            Toast.makeText(this, "Erro ao iniciar o aplicativo: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e("AppInit", "Error on initialization", e)
+            Toast.makeText(this, "Something wrong.", Toast.LENGTH_LONG).show()
         }
-
-
-
     }
 }
+
+@Composable
+fun SakeStoreList(
+    viewModel: SakeStoreViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    Scaffold { paddingValues ->
+        LazyColumn(
+            contentPadding = paddingValues,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                HomeHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
+            }
+
+            when (val state = uiState) {
+                is SakeStoreUiState.Loading -> item { LoadingContent() }
+                is SakeStoreUiState.Error -> item { ErrorContent(state.message) }
+                is SakeStoreUiState.Success -> {
+                    items(
+                        items = state.stores,
+                        key = { it.name }
+                    ) { store ->
+                        SakeStoreCard(
+                            store = store,
+                            onItemClick = {
+                                val intent = Intent(context, SakeStoreDetailActivity::class.java).apply {
+                                    putExtra(SakeStoreDetailActivity.EXTRA_STORE_NAME, store.name)
+                                }
+                                context.startActivity(intent)
+                            },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+//@Composable
+//fun a(
+//    viewModel: SakeStoreViewModel = koinViewModel()
+//) {
+//    val state by viewModel.uiState.collectAsState()
+//    val context = LocalContext.current
+//
+//    SakeShopTheme {
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = MaterialTheme.colorScheme.background
+//        ) {
+//            Column {
+//
+//                HomeHeader()
+//
+//                when (val currentState = state) {
+//                    is SakeStoreUiState.Success -> SuccessScreenContent(
+//                        stores = currentState.stores,
+//                        onStoreClick = { store ->
+//                            val intent = Intent(context, SakeStoreDetailActivity::class.java).apply {
+//                                putExtra(SakeStoreDetailActivity.EXTRA_STORE_NAME, store.name)
+//                            }
+//                            context.startActivity(intent)
+//                        }
+//                    )
+//                    is SakeStoreUiState.Loading -> LoadingContent()
+//                    is SakeStoreUiState.Error -> ErrorContent(message = currentState.message)
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun HomeHeader(
@@ -104,64 +175,60 @@ fun HomeHeader(
 }
 
 @Composable
-fun SakeStoreList(
-    viewModel: SakeStoreViewModel = koinViewModel()
+private fun SuccessScreenContent(
+    stores: List<SakeStore>,
+    paddingValues: PaddingValues,
+    onStoreClick: (SakeStore) -> Unit
 ) {
-    val context = LocalContext.current
-    val uiState = viewModel.uiState.collectAsState()
-
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(paddingValues),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item {
-            HomeHeader()
-        }
-
-        when (val state = uiState.value) {
-            is SakeStoreUiState.Success -> {
-                items(
-                    items = state.stores,
-                    key = { it.name }
-                ) { store ->
-                    SakeStoreCard(
-                        store = store,
-                        onItemClick = {
-                            val intent = Intent(context, SakeStoreDetailActivity::class.java).apply {
-                                putExtra(SakeStoreDetailActivity.EXTRA_STORE_NAME, store.name)
-                            }
-                            context.startActivity(intent)
-                        }
-                    )
-                }
-            }
-            is SakeStoreUiState.Loading -> {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Carregando...")
-                    }
-                }
-            }
-            is SakeStoreUiState.Error -> {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.message,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-            }
+        items(
+            items = stores,
+            key = { it.name }
+        ) { store ->
+            SakeStoreCard(
+                store = store,
+                onItemClick = { onStoreClick(store) }
+            )
         }
     }
 }
 
+@Composable
+private fun LoadingContent() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun ErrorContent(message: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Erro ao carregar lojas",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+        }
+    }
+}

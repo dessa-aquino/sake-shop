@@ -17,7 +17,13 @@ data class SakeStore(
     val website: String
 ) {
     init {
-        require(name.isNotBlank()) { "Nome da loja não pode ser vazio" }
-        require(rating in 0.0..5.0) { "Avaliação deve estar entre 0 e 5" }
+        require(name.isNotBlank()) { "Store name cannot be empty" }
+        require(description.isNotBlank()) { "Store description cannot be empty" }
+        require(rating in 0.0..5.0) { "Rating must be between 0 and 5" }
+        require(address.isNotBlank()) { "Store description cannot be empty" }
+        require(coordinates.size == 2) { "Coordinates must contain latitude and longitude" }
+        require(googleMapsLink.startsWith("https://")) { "Google Maps link must be a valid URL" }
+        require(website.startsWith("https://") || website.startsWith("http://"))
+        { "Website link must be a valid URL" }
     }
 }

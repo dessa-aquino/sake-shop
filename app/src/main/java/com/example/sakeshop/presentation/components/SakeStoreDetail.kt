@@ -2,7 +2,6 @@ package com.example.sakeshop.presentation.components
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +15,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,11 +44,153 @@ import androidx.compose.ui.res.painterResource
 import com.example.sakeshop.R
 import androidx.compose.foundation.clickable
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Button
+import androidx.core.net.toUri
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SakeStoreDetail(
+    store: SakeStore,
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    Scaffold(
+        containerColor = Color.Transparent,
+        topBar = { DetailTopBar(onNavigateBack) },
+        bottomBar = { DetailBottomBar(store) }
+    ) { _ ->
+        Box( modifier = Modifier
+            .fillMaxSize()
+        ) {
+
+            ImageHeader(store)
+
+            Column( modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.height(180.dp))
+
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .offset(y = (-20).dp),
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                    color = MaterialTheme.colorScheme.surface
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+
+                        NameAndDescriptionSection(store)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        AddressSection(store)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        RatingSection(store)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailTopBar(
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        title = { },
+        navigationIcon = {
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+
+                Surface(
+                    modifier = Modifier.size(40.dp),
+                    shape = RoundedCornerShape(15.dp),
+                    color = Color.Black.copy(alpha = 0.7f)
+                ) { }
+
+
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White
+                    )
+                }
+            }
+        },
+
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            navigationIconContentColor = Color.White
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailBottomBar(
+    store: SakeStore
+) {
+    val context = LocalContext.current
+    if (store.website.isNotBlank()) {
+        Button(
+            onClick = {
+                openBrowser(context, store.website)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Open site")
+        }
+    }
+}
 
 @Composable
-fun addressSection(store: SakeStore) {
+fun ImageHeader(store: SakeStore) {
+    val imageModel = when (store.picture) {
+        null -> R.drawable.placeholder_image2
+        else -> store.picture
+    }
+
+    AsyncImage(
+        model = imageModel,
+        contentDescription = "Store picture ${store.name}",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp),
+        error = painterResource(id = R.drawable.placeholder_image2),
+        fallback = painterResource(id = R.drawable.placeholder_image2)
+    )
+}
+
+@Composable
+fun NameAndDescriptionSection(store: SakeStore) {
+    Text(
+        text = store.name,
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text(
+        text = store.description,
+        style = MaterialTheme.typography.bodyLarge
+    )
+}
+
+@Composable
+fun AddressSection(store: SakeStore) {
 
     val context = LocalContext.current
 
@@ -77,7 +216,7 @@ fun addressSection(store: SakeStore) {
 }
 
 @Composable
-fun ratingSection(store: SakeStore) {
+fun RatingSection(store: SakeStore) {
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -98,160 +237,23 @@ fun ratingSection(store: SakeStore) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SakeStoreDetail(
-    store: SakeStore,
-    onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    val context = LocalContext.current
-
-    Scaffold(
-        containerColor = Color.Transparent,
-        topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        // Background circular com efeito "blur"
-                        Surface(
-                            modifier = Modifier.size(40.dp),
-                            shape = RoundedCornerShape(15.dp),
-                            color = Color.Black.copy(alpha = 0.7f)
-                        ) { }
-
-                        // Botão de voltar
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Voltar",
-                                tint = Color.White
-                            )
-                        }
-                    }
-                },
-
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    navigationIconContentColor = Color.White
-                )
-
-            )
-        },
-        bottomBar = {
-            // Botão para abrir o website na parte inferior
-            if (store.website.isNotBlank()) {
-                Button(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(store.website))
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Abrir site")
-                }
-            }
-        }
-    ) { _ ->
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-
-            val imageModel = when (store.picture) {
-                null -> R.drawable.placeholder_image2
-                else -> store.picture
-            }
-
-            // A imagem agora ocupa toda a tela, incluindo a área da TopBar
-            AsyncImage(
-                model = imageModel,
-                contentDescription = "Foto da loja ${store.name}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                error = painterResource(id = R.drawable.placeholder_image2),
-                fallback = painterResource(id = R.drawable.placeholder_image2)
-            )
-
-            // O conteúdo principal agora começa do topo da tela
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Espaço para compensar a altura da TopBar e manter o conteúdo visível
-                Spacer(modifier = Modifier.height(180.dp))
-
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .offset(y = (-20).dp),
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-
-
-                        Text(
-                            text = store.name,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Descrição
-                        store.description?.let { description ->
-                            Text(
-                                text = description,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        addressSection(store)
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        ratingSection(store)
-
-                    }
-                }
-            }
-        }
-    }
-}
-
 private fun openGoogleMaps(context: Context, googleMapsLink: String) {
-    val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleMapsLink)).apply {
+    val mapIntent = Intent(Intent.ACTION_VIEW, googleMapsLink.toUri()).apply {
         setPackage("com.google.android.apps.maps")
     }
 
     try {
-        // Tenta abrir no Google Maps primeiro
         if (mapIntent.resolveActivity(context.packageManager) != null) {
             context.startActivity(mapIntent)
         } else {
-            // Se não tiver o Maps instalado, abre no navegador
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleMapsLink))
-            context.startActivity(browserIntent)
+            openBrowser(context, googleMapsLink)
         }
     } catch (e: Exception) {
-        // Em caso de qualquer erro, tenta abrir no navegador como última opção
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleMapsLink))
-        context.startActivity(browserIntent)
+        openBrowser(context, googleMapsLink)
     }
+}
+
+private fun openBrowser(context: Context, link: String) {
+    val browserIntent = Intent(Intent.ACTION_VIEW, link.toUri())
+    context.startActivity(browserIntent)
 }

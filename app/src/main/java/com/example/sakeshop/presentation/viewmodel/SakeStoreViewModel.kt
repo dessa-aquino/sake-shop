@@ -1,5 +1,6 @@
 package com.example.sakeshop.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sakeshop.domain.model.SakeStore
@@ -25,56 +26,42 @@ class SakeStoreViewModel(
 
     private fun loadSakeStores() {
         viewModelScope.launch {
-            _uiState.value = SakeStoreUiState.Loading
-            repository.getSakeStores()
-                .onSuccess { shops: List<SakeStore> ->
-                    _uiState.value = SakeStoreUiState.Success(shops)
-                }
-                .onFailure { error ->
-                    _uiState.value = SakeStoreUiState.Error(error.message ?: "Erro desconhecido")
-                }
+            try {
+                _uiState.value = SakeStoreUiState.Loading
+                val result = repository.getSakeStores()
+                result.fold(
+                    onSuccess = { stores ->
+                        _uiState.value = if (stores.isEmpty())
+                            SakeStoreUiState.Error("No store found")
+                        else
+                            SakeStoreUiState.Success(stores)
+                    },
+                    onFailure = { error ->
+                        _uiState.value = SakeStoreUiState.Error(
+                            error.message ?: "Error loading data store"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = SakeStoreUiState.Error(
+                    "Unnexpected error: ${e.localizedMessage}"
+                )
+            }
         }
     }
-
 
     fun loadStoreDetails(storeName: String) {
         viewModelScope.launch {
-            when (val state = uiState.value) {
-                is SakeStoreUiState.Success -> {
-                    _selectedStore.value = state.stores.find { it.name == storeName }
-                }
-                else -> {} // Tratar outros estados se necessário
+            val state = uiState.value
+            if (state is SakeStoreUiState.Success) {
+                _selectedStore.value = state.stores.find { it.name == storeName }
+                    ?: run {
+                        Log.e("LoadStore", "Store not found: $storeName")
+                        null
+                    }
             }
         }
     }
-
-
-    fun getStoreUrl(): String {
-        return when (val currentState = uiState.value) {
-            is SakeStoreUiState.Success -> {
-                // Assumindo que estamos trabalhando com a loja selecionada atualmente
-                currentState.stores.firstOrNull()?.website ?: ""
-            }
-            else -> ""
-        }
-
-    }
-
-    fun getStoreDetails(storeName: String): SakeStore {
-        return when (val currentState = uiState.value) {
-            is SakeStoreUiState.Success -> {
-                currentState.stores.find { it.name == storeName }
-                    ?: throw IllegalArgumentException("Loja não encontrada com o nome: $storeName")
-            }
-            is SakeStoreUiState.Loading -> {
-                throw IllegalStateException("Os dados das lojas ainda estão sendo carregados")
-            }
-            is SakeStoreUiState.Error -> {
-                throw IllegalStateException("Erro ao buscar dados da loja: ${currentState.message}")
-            }
-        }
-    }
-
 }
 
 sealed class SakeStoreUiState {
