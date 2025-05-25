@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -63,21 +64,25 @@ fun SakeStoreCard(
                 )
 
                 Text(
-                    text = store.description,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Text(
                     text = store.address,
                     style = MaterialTheme.typography.bodySmall
                 )
 
                 // Rating
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
                     Text(
-                        text = "★ ${store.rating}",
-                        color = Color.Yellow,
-                        fontSize = 16.sp
+                        text = store.rating.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 }
             }

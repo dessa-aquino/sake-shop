@@ -31,6 +31,33 @@ class SakeStoreViewModel(
                 }
         }
     }
+
+    fun getStoreUrl(): String {
+        return when (val currentState = uiState.value) {
+            is SakeStoreUiState.Success -> {
+                // Assumindo que estamos trabalhando com a loja selecionada atualmente
+                currentState.stores.firstOrNull()?.website ?: ""
+            }
+            else -> ""
+        }
+
+    }
+
+    fun getStoreDetails(storeName: String): SakeStore {
+        return when (val currentState = uiState.value) {
+            is SakeStoreUiState.Success -> {
+                currentState.stores.find { it.name == storeName }
+                    ?: throw IllegalArgumentException("Loja não encontrada com o nome: $storeName")
+            }
+            is SakeStoreUiState.Loading -> {
+                throw IllegalStateException("Os dados das lojas ainda estão sendo carregados")
+            }
+            is SakeStoreUiState.Error -> {
+                throw IllegalStateException("Erro ao buscar dados da loja: ${currentState.message}")
+            }
+        }
+    }
+
 }
 
 sealed class SakeStoreUiState {
