@@ -45,6 +45,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.res.painterResource
 import com.example.sakeshop.R
+import androidx.compose.foundation.clickable
+import android.content.Context
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,29 +58,6 @@ fun SakeStoreDetail(
 ) {
 
     val context = LocalContext.current
-
-    fun openGoogleMaps(address: String) {
-        val encodedAddress = Uri.encode(address)
-        val gmmIntentUri = Uri.parse("geo:0,0?q=$encodedAddress")
-        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-
-        if (mapIntent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(mapIntent)
-        } else {
-            // Fallback para browser se Google Maps não estiver instalado
-            val browserIntent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
-            )
-            context.startActivity(browserIntent)
-        }
-    }
-
-    fun openWebsite(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        context.startActivity(intent)
-    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -177,7 +156,13 @@ fun SakeStoreDetail(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = store.address)
+                            Text(
+                                text = store.address,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { openGoogleMaps(context, store.googleMapsLink) }
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -193,5 +178,26 @@ fun SakeStoreDetail(
                 }
             }
         }
+    }
+}
+
+private fun openGoogleMaps(context: Context, googleMapsLink: String) {
+    val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleMapsLink)).apply {
+        setPackage("com.google.android.apps.maps")
+    }
+
+    try {
+        // Tenta abrir no Google Maps primeiro
+        if (mapIntent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(mapIntent)
+        } else {
+            // Se não tiver o Maps instalado, abre no navegador
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleMapsLink))
+            context.startActivity(browserIntent)
+        }
+    } catch (e: Exception) {
+        // Em caso de qualquer erro, tenta abrir no navegador como última opção
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleMapsLink))
+        context.startActivity(browserIntent)
     }
 }
