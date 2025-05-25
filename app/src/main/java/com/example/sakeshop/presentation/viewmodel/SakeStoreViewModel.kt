@@ -9,9 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+
 class SakeStoreViewModel(
     private val repository: SakeStoreRepository
 ) : ViewModel() {
+    private val _selectedStore = MutableStateFlow<SakeStore?>(null)
+    val selectedStore: StateFlow<SakeStore?> = _selectedStore.asStateFlow()
+
     private val _uiState = MutableStateFlow<SakeStoreUiState>(SakeStoreUiState.Loading)
     val uiState: StateFlow<SakeStoreUiState> = _uiState.asStateFlow()
 
@@ -31,6 +35,19 @@ class SakeStoreViewModel(
                 }
         }
     }
+
+
+    fun loadStoreDetails(storeName: String) {
+        viewModelScope.launch {
+            when (val state = uiState.value) {
+                is SakeStoreUiState.Success -> {
+                    _selectedStore.value = state.stores.find { it.name == storeName }
+                }
+                else -> {} // Tratar outros estados se necessário
+            }
+        }
+    }
+
 
     fun getStoreUrl(): String {
         return when (val currentState = uiState.value) {

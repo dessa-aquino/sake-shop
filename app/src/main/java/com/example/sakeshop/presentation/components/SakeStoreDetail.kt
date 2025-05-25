@@ -13,14 +13,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,10 +38,11 @@ import com.example.sakeshop.domain.model.SakeStore
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SakeStoreDetail(
     store: SakeStore,
-    onLinkClick: () -> Unit,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -53,8 +58,10 @@ fun SakeStoreDetail(
             context.startActivity(mapIntent)
         } else {
             // Fallback para browser se Google Maps não estiver instalado
-            val browserIntent = Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress"))
+            val browserIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.google.com/maps/search/?api=1&query=$encodedAddress")
+            )
             context.startActivity(browserIntent)
         }
     }
@@ -64,121 +71,137 @@ fun SakeStoreDetail(
         context.startActivity(intent)
     }
 
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        // Imagem da loja no topo
-        store.picture?.let { url ->
-            AsyncImage(
-                model = url,
-                contentDescription = "Imagem da loja ${store.name}",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            // Nome da loja e ícone de link
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = store.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                store.website.let { url ->
-                    IconButton(
-                        onClick = { openWebsite(url) }
-                    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = store.name) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Outlined.Info,
-                            contentDescription = "Abrir site da loja",
-                            tint = MaterialTheme.colorScheme.primary
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Voltar"
                         )
                     }
                 }
-            }
-
-            // Avaliação
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                repeat(5) { index ->
-                    Icon(
-                        imageVector = Icons.Filled.Star,
-                        contentDescription = null,
-                        tint = if (index < store.rating)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                Text(
-                    text = store.rating.toString(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+        ) {
+            // Imagem da loja no topo
+            store.picture?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = "Imagem da loja ${store.name}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
                 )
             }
 
-            // Endereço
-            Text(
-                text = "Endereço",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            TextButton(
-                onClick = { openGoogleMaps(store.address) },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
             ) {
+                // Nome da loja e ícone de link
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = store.name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    store.website.let { url ->
+                        IconButton(
+                            onClick = { openWebsite(url) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = "Abrir site da loja",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
+                // Avaliação
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.padding(vertical = 8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Ícone de localização",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    repeat(5) { index ->
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = if (index < store.rating)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                     Text(
-                        text = store.address,
+                        text = store.rating.toString(),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
+
+                // Endereço
+                Text(
+                    text = "Endereço",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                TextButton(
+                    onClick = { openGoogleMaps(store.address) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Ícone de localização",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text(
+                            text = store.address,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+
+
+                // Descrição
+                Text(
+                    text = "Descrição",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                Text(
+                    text = store.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
-
-
-            // Descrição
-            Text(
-                text = "Descrição",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            Text(
-                text = store.description,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 4.dp)
-            )
         }
     }
 }
