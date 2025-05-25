@@ -32,11 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
-import com.example.sakeshop.domain.model.SakeStore
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.getValue
 import androidx.compose.material3.Scaffold
 
@@ -107,40 +105,6 @@ fun SakeStoreList(
     }
 }
 
-//@Composable
-//fun a(
-//    viewModel: SakeStoreViewModel = koinViewModel()
-//) {
-//    val state by viewModel.uiState.collectAsState()
-//    val context = LocalContext.current
-//
-//    SakeShopTheme {
-//        Surface(
-//            modifier = Modifier.fillMaxSize(),
-//            color = MaterialTheme.colorScheme.background
-//        ) {
-//            Column {
-//
-//                HomeHeader()
-//
-//                when (val currentState = state) {
-//                    is SakeStoreUiState.Success -> SuccessScreenContent(
-//                        stores = currentState.stores,
-//                        onStoreClick = { store ->
-//                            val intent = Intent(context, SakeStoreDetailActivity::class.java).apply {
-//                                putExtra(SakeStoreDetailActivity.EXTRA_STORE_NAME, store.name)
-//                            }
-//                            context.startActivity(intent)
-//                        }
-//                    )
-//                    is SakeStoreUiState.Loading -> LoadingContent()
-//                    is SakeStoreUiState.Error -> ErrorContent(message = currentState.message)
-//                }
-//            }
-//        }
-//    }
-//}
-
 @Composable
 fun HomeHeader(
     modifier: Modifier = Modifier
@@ -175,30 +139,6 @@ fun HomeHeader(
 }
 
 @Composable
-private fun SuccessScreenContent(
-    stores: List<SakeStore>,
-    paddingValues: PaddingValues,
-    onStoreClick: (SakeStore) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(paddingValues),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(
-            items = stores,
-            key = { it.name }
-        ) { store ->
-            SakeStoreCard(
-                store = store,
-                onItemClick = { onStoreClick(store) }
-            )
-        }
-    }
-}
-
-@Composable
 private fun LoadingContent() {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -219,7 +159,7 @@ private fun ErrorContent(message: String) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Erro ao carregar lojas",
+                text = "Error, but don´t feel sad. Try again!",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.error
             )

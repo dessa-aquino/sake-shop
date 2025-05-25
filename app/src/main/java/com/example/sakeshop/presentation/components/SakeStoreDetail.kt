@@ -1,7 +1,6 @@
 package com.example.sakeshop.presentation.components
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,7 +42,7 @@ import androidx.compose.ui.res.painterResource
 import com.example.sakeshop.R
 import androidx.compose.foundation.clickable
 import android.content.Context
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.material3.Button
 import androidx.core.net.toUri
 
@@ -52,8 +50,7 @@ import androidx.core.net.toUri
 @Composable
 fun SakeStoreDetail(
     store: SakeStore,
-    onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateBack: () -> Unit
 ) {
 
     Scaffold(
@@ -64,7 +61,6 @@ fun SakeStoreDetail(
         Box( modifier = Modifier
             .fillMaxSize()
         ) {
-
             ImageHeader(store)
 
             Column( modifier = Modifier.fillMaxSize()) {
@@ -215,28 +211,6 @@ fun AddressSection(store: SakeStore) {
     }
 }
 
-@Composable
-fun RatingSection(store: SakeStore) {
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Star,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = store.rating.toString(),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
 private fun openGoogleMaps(context: Context, googleMapsLink: String) {
     val mapIntent = Intent(Intent.ACTION_VIEW, googleMapsLink.toUri()).apply {
         setPackage("com.google.android.apps.maps")
@@ -249,7 +223,7 @@ private fun openGoogleMaps(context: Context, googleMapsLink: String) {
             openBrowser(context, googleMapsLink)
         }
     } catch (e: Exception) {
-        openBrowser(context, googleMapsLink)
+        Log.e("DetailScreenInit", "Error on detail screen presentation", e)
     }
 }
 
