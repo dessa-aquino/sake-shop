@@ -67,6 +67,8 @@ fun addressSection(store: SakeStore) {
         Text(
             text = store.address,
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
             modifier = Modifier
                 .weight(1f)
                 .clickable { openGoogleMaps(context, store.googleMapsLink) }
