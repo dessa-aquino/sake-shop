@@ -43,6 +43,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.res.painterResource
+import com.example.sakeshop.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,14 +118,22 @@ fun SakeStoreDetail(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
+
+            val imageModel = when (store.picture) {
+                null -> R.drawable.placeholder_image2
+                else -> store.picture
+            }
+
             // A imagem agora ocupa toda a tela, incluindo a área da TopBar
             AsyncImage(
-                model = store.picture,
+                model = imageModel,
                 contentDescription = "Foto da loja ${store.name}",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(250.dp),
+                error = painterResource(id = R.drawable.placeholder_image2),
+                fallback = painterResource(id = R.drawable.placeholder_image2)
             )
 
             // O conteúdo principal agora começa do topo da tela
