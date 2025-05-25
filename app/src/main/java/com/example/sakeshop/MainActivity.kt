@@ -1,5 +1,6 @@
 package com.example.sakeshop
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,11 +14,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.example.sakeshop.presentation.activities.SakeStoreDetailActivity
 import com.example.sakeshop.presentation.components.SakeStoreCard
 import com.example.sakeshop.presentation.viewmodel.SakeStoreUiState
 import com.example.sakeshop.presentation.viewmodel.SakeStoreViewModel
 import com.example.sakeshop.ui.theme.SakeShopTheme
 import org.koin.androidx.compose.koinViewModel
+
 
 
 class MainActivity : ComponentActivity() {
@@ -48,6 +52,7 @@ class MainActivity : ComponentActivity() {
 fun SakeStoreList(
     viewModel: SakeStoreViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsState()
 
     when (val state = uiState.value) {
@@ -57,7 +62,15 @@ fun SakeStoreList(
         is SakeStoreUiState.Success -> {
             LazyColumn {
                 items(state.stores) { store ->
-                    SakeStoreCard(store)
+                    SakeStoreCard(
+                        store = store,
+                        onItemClick = {
+                            val intent = Intent(context, SakeStoreDetailActivity::class.java).apply {
+                                putExtra(SakeStoreDetailActivity.EXTRA_STORE_NAME, store.name)
+                            }
+                            context.startActivity(intent)
+                        }
+                    )
                 }
             }
         }
