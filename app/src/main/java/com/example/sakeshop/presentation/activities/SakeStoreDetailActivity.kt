@@ -6,16 +6,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.example.sakeshop.SakeStoreList
 import com.example.sakeshop.ui.theme.SakeShopTheme
 import com.example.sakeshop.presentation.components.SakeStoreDetail
 import com.example.sakeshop.presentation.viewmodel.SakeStoreUiState
