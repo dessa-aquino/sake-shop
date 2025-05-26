@@ -5,4 +5,5 @@ import com.example.sakeshop.domain.model.SakeStore
 
 interface SakeStoreRepository {
     suspend fun getSakeStores(): Result<List<SakeStore>>
+    suspend fun clearCache()
 }

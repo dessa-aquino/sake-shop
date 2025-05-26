@@ -3,6 +3,7 @@ package com.example.sakeshop.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sakeshop.data.repository.LocalData
 import com.example.sakeshop.domain.model.SakeStore
 import com.example.sakeshop.domain.repository.SakeStoreRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,6 +63,16 @@ class SakeStoreViewModel(
             }
         }
     }
+
+    fun reloadSakeStores(data: String) {
+        viewModelScope.launch {
+            repository.clearCache()
+            LocalData.currentFileName = data
+            _uiState.value = SakeStoreUiState.Loading
+            loadSakeStores()
+        }
+    }
+
 }
 
 sealed class SakeStoreUiState {

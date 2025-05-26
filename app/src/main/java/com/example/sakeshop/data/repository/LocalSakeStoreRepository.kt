@@ -6,6 +6,12 @@ import com.example.sakeshop.domain.model.SakeStore
 import com.example.sakeshop.domain.repository.SakeStoreRepository
 import kotlinx.serialization.json.Json
 
+object LocalData {
+    const val ORIGINAL_DATA = "data.json"
+    const val ERROR_DATA = "data_error.json"
+
+    var currentFileName = LocalData.ORIGINAL_DATA
+}
 
 class LocalSakeStoreRepository(
     private val context: Context,
@@ -15,13 +21,17 @@ class LocalSakeStoreRepository(
     private var cachedStores: List<SakeStore>? = null
 
     companion object {
-        private const val DATA_FILE_NAME = "data.json"
+
 
         private fun defaultJson() = Json {
             ignoreUnknownKeys = true
             coerceInputValues = true
             isLenient = true
         }
+    }
+
+    override suspend fun clearCache() {
+        cachedStores = null
     }
 
     override suspend fun getSakeStores(): Result<List<SakeStore>> = runCatching {
@@ -34,9 +44,8 @@ class LocalSakeStoreRepository(
         Log.e("LocalSakeStoreRepository", "Error loading stores json", error)
     }
 
-
     private fun loadStoresFromAssets(): List<SakeStore> {
-        context.assets.open(DATA_FILE_NAME).use { inputStream ->
+        context.assets.open(LocalData.currentFileName).use { inputStream ->
             val jsonString = inputStream.bufferedReader().use { it.readText() }
 
             require(jsonString.isNotBlank()) { "Json file is empty or blank" }

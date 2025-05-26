@@ -37,6 +37,25 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
+import com.example.sakeshop.data.repository.LocalData
 
 
 class MainActivity : ComponentActivity() {
@@ -67,7 +86,11 @@ fun SakeStoreList(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButtonWithMenu(viewModel)
+        }
+    ) { paddingValues ->
         LazyColumn(
             contentPadding = paddingValues,
             modifier = Modifier.fillMaxSize()
@@ -158,8 +181,16 @@ private fun ErrorContent(message: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.error_image),
+                contentDescription = "Error",
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(bottom = 16.dp, top = 32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Error, but don´t feel sad. Try again!",
+                text = "Ops! Something went wrong",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.error
             )
@@ -168,6 +199,61 @@ private fun ErrorContent(message: String) {
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FloatingActionButtonWithMenu(
+    viewModel: SakeStoreViewModel = koinViewModel()
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(horizontalAlignment = Alignment.End) {
+        FloatingActionButton(
+            onClick = { expanded = true },
+            modifier = Modifier.padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Settings,
+                contentDescription = "Menu de Configurações"
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Dados Originais") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Dados Originais"
+                    )
+                },
+                onClick = {
+                    viewModel.reloadSakeStores(LocalData.ORIGINAL_DATA)
+                    expanded = false
+                }
+            )
+
+            DropdownMenuItem(
+                text = { Text("Dados com Erro") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Dados com Erro"
+                    )
+                },
+                onClick = {
+                    viewModel.reloadSakeStores(LocalData.ERROR_DATA)
+                    expanded = false
+                }
             )
         }
     }
