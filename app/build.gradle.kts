@@ -38,6 +38,9 @@ android {
     buildFeatures {
         compose = true
     }
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
 }
 
 dependencies {
@@ -57,7 +60,13 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:3.5.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation(libs.androidx.compose.material)
-    testImplementation(libs.junit)
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation("androidx.test:core-ktx:1.5.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.0")
+    testImplementation("io.mockk:mockk:1.13.5")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
