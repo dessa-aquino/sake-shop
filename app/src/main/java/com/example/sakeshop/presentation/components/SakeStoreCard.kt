@@ -37,7 +37,7 @@ fun SakeStoreCard(
             containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.5.dp,
+            defaultElevation = 1.dp,
             pressedElevation = 0.dp,
             focusedElevation = 0.5.dp,
             hoveredElevation = 1.dp
