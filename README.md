@@ -36,10 +36,3 @@ The SakeShop app was developed as an assessment for a hiring process within a ti
 - **Add User Experience Features**:  
   Implement basic features like search and filtering to improve user experience.
 
----
-
-## Debug APK Location
-
-The generated debug APK is available at the following directory: 
-
-``` ...\SakeShop\app\build\outputs\apk\debug```
