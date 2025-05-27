@@ -40,5 +40,6 @@ The SakeShop app was developed as an assessment for a hiring process within a ti
 
 ## Debug APK Location
 
-The generated debug APK is available at the following directory: ...\SakeShop\app\build\outputs\apk\debug
+The generated debug APK is available at the following directory: 
 
+``` ...\SakeShop\app\build\outputs\apk\debug```
